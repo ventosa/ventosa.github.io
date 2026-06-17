@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="ru"><head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<meta charset="UTF-8">
+<title>Задача о горнолыжных подъёмниках</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Segoe UI', Arial, sans-serif;
+  background: linear-gradient(180deg, #b8ddf7 0%, #e5f5ff 35%, #f9f9f9 100%);
+  min-height: 100vh;
+  padding: 20px;
+}
+.container { max-width: 860px; margin: 0 auto; }
+
+h1 {
+  text-align: center;
+  font-size: 26px;
+  color: #1a3660;
+  margin-bottom: 6px;
+  padding-top: 8px;
+}
+.subtitle {
+  text-align: center;
+  color: #5577aa;
+  font-size: 15px;
+  margin-bottom: 20px;
+}
+
+.mountain-wrap {
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+.box {
+  background: white;
+  border-radius: 18px;
+  padding: 20px 24px;
+  margin-bottom: 18px;
+  box-shadow: 0 3px 16px rgba(0,60,120,0.08);
+}
+.box h2 {
+  color: #1a3660;
+  font-size: 17px;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.lifts {
+  display: flex;
+  gap: 16px;
+}
+.lift-card {
+  flex: 1;
+  border-radius: 14px;
+  padding: 16px;
+  text-align: center;
+  border: 2px solid;
+}
+.lift-a { background: #fffbea; border-color: #e8b800; }
+.lift-b { background: #eafaf0; border-color: #22a050; }
+
+.lift-icon { font-size: 40px; margin-bottom: 6px; }
+.lift-name { font-weight: 700; font-size: 15px; color: #222; margin-bottom: 5px; }
+.lift-rule {
+  font-size: 13px;
+  color: #555;
+  line-height: 1.5;
+  margin-bottom: 10px;
+  min-height: 50px;
+}
+.lift-rule strong { color: #333; }
+.wait-big {
+  font-size: 32px;
+  font-weight: 800;
+  margin: 4px 0;
+  transition: color 0.2s;
+}
+.wait-a-color { color: #c89000; }
+.wait-b-color { color: #1a7d3e; }
+.wait-equal { color: #e53e3e; animation: pulse 0.5s; }
+@keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.2)} }
+.skier-count { font-size: 14px; color: #777; margin-top: 4px; }
+
+.slider-box {
+  background: white;
+  border-radius: 18px;
+  padding: 20px 24px;
+  margin-bottom: 18px;
+  box-shadow: 0 3px 16px rgba(0,60,120,0.08);
+}
+.slider-title {
+  text-align: center;
+  font-size: 16px;
+  font-weight: 700;
+  color: #1a3660;
+  margin-bottom: 14px;
+}
+
+.slider-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 12px;
+}
+.side-label {
+  width: 72px;
+  text-align: center;
+  font-weight: 700;
+  font-size: 18px;
+}
+.side-a { color: #c89000; }
+.side-b { color: #1a7d3e; }
+.side-label small { display: block; font-size: 12px; font-weight: 400; color: #888; }
+
+.slider-wrap { flex: 1; }
+input[type=range] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 22px;
+  border-radius: 11px;
+  outline: none;
+  cursor: pointer;
+  background: linear-gradient(
+    to right,
+    #e8b800 var(--a, 50%),
+    #22a050 var(--a, 50%)
+  );
+  margin-bottom: 4px;
+}
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: white;
+  border: 4px solid #1a3660;
+  cursor: grab;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+}
+input[type=range]::-webkit-slider-thumb:active { cursor: grabbing; }
+.tick-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 0 1px;
+  font-size: 11px;
+  color: #999;
+}
+
+.bars-wrap {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  align-items: flex-end;
+  height: 130px;
+  margin: 16px 0 8px;
+}
+.bar-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  width: 100px;
+}
+.bar-lbl { font-size: 12px; font-weight: 600; text-align: center; }
+.bar-container {
+  width: 64px;
+  height: 100px;
+  background: #f0f0f0;
+  border-radius: 8px;
+  overflow: hidden;
+  display: flex;
+  align-items: flex-end;
+  position: relative;
+}
+.bar-fill {
+  width: 100%;
+  border-radius: 8px 8px 0 0;
+  transition: height 0.25s ease, background-color 0.25s;
+}
+.bar-val { font-size: 13px; font-weight: 700; text-align: center; }
+
+.totals-panel {
+  background: #f0f5ff;
+  border-radius: 12px;
+  padding: 14px;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.total-item { text-align: center; }
+.total-item .lbl { font-size: 12px; color: #667; margin-bottom: 3px; }
+.total-item .val { font-size: 26px; font-weight: 800; }
+.color-a { color: #c89000; }
+.color-b { color: #1a7d3e; }
+.color-total { color: #6030b0; }
+.total-divider { width: 1px; height: 40px; background: #ccc; }
+
+.task {
+  border-radius: 14px;
+  padding: 16px 18px;
+  margin-bottom: 14px;
+  border-left: 5px solid;
+}
+.task h3 { font-size: 16px; margin-bottom: 10px; }
+.task p { font-size: 14px; color: #444; line-height: 1.6; margin-bottom: 8px; }
+.task-1 { background: #fffcec; border-color: #e8b800; }
+.task-2 { background: #edfbf2; border-color: #22a050; }
+.task-3 { background: #f0f5ff; border-color: #3060cc; }
+
+.equation {
+  display: inline-block;
+  background: white;
+  border: 2px solid #ccc;
+  border-radius: 10px;
+  padding: 8px 18px;
+  font-size: 20px;
+  font-family: 'Courier New', monospace;
+  font-weight: bold;
+  color: #222;
+  margin: 8px 0;
+  letter-spacing: 1px;
+}
+
+.hint {
+  background: #fff8dc;
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 13px;
+  color: #7a6000;
+  margin-top: 8px;
+  display: flex;
+  gap: 6px;
+  align-items: flex-start;
+}
+
+.success-msg {
+  display: none;
+  background: #d4edda;
+  border: 2px solid #28a745;
+  border-radius: 10px;
+  padding: 10px 16px;
+  color: #155724;
+  font-weight: 700;
+  font-size: 15px;
+  text-align: center;
+  margin-top: 10px;
+  animation: fadeIn 0.4s;
+}
+.success-msg.show { display: block; }
+@keyframes fadeIn { from{opacity:0;transform:translateY(-6px)} to{opacity:1;transform:none} }
+
+@media (max-width: 600px) {
+  .lifts { flex-direction: column; }
+  .slider-row { flex-direction: column; }
+  .side-label { width: auto; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- Mountain SVG -->
+  <div class="mountain-wrap">
+    <svg viewBox="0 0 800 120" width="100%" height="80" xmlns="http://www.w3.org/2000/svg">
+      <rect width="800" height="120" fill="none"></rect>
+      <polygon points="0,120 200,20 400,120" fill="#aec6e8" opacity="0.5"></polygon>
+      <polygon points="100,120 350,0 600,120" fill="#7fa8d0" opacity="0.6"></polygon>
+      <polygon points="300,120 550,30 800,120" fill="#aec6e8" opacity="0.5"></polygon>
+      <polygon points="200,20 180,60 220,60" fill="white" opacity="0.9"></polygon>
+      <polygon points="350,0 325,40 375,40" fill="white" opacity="0.9"></polygon>
+      <polygon points="550,30 530,65 570,65" fill="white" opacity="0.9"></polygon>
+      <line x1="230" y1="60" x2="340" y2="95" stroke="#888" stroke-width="1.5" stroke-dasharray="4,3"></line>
+      <rect x="268" y="70" width="8" height="12" rx="1" fill="#e8b800" transform="rotate(-15,272,76)"></rect>
+      <rect x="297" y="80" width="8" height="12" rx="1" fill="#e8b800" transform="rotate(-15,301,86)"></rect>
+      <line x1="410" y1="45" x2="540" y2="90" stroke="#444" stroke-width="1.5" stroke-dasharray="4,3"></line>
+      <rect x="447" y="58" width="7" height="10" rx="1" fill="#22a050" transform="rotate(-18,451,63)"></rect>
+      <rect x="490" y="72" width="7" height="10" rx="1" fill="#22a050" transform="rotate(-18,494,77)"></rect>
+      <text x="256" y="55" font-size="11" fill="#c89000" font-weight="bold">Подъёмник А</text>
+      <text x="450" y="48" font-size="11" fill="#1a7d3e" font-weight="bold">Подъёмник Б</text>
+    </svg>
+  </div>
+
+  <h1>⛷️ Задача о горнолыжных подъёмниках</h1>
+  <p class="subtitle">Передвигай ползунок и наблюдай — кто ждёт дольше?</p>
+
+  <!-- Scenario -->
+  <div class="box">
+    <h2>📖 Условие задачи</h2>
+    <p style="color:#444;font-size:14px;line-height:1.7;margin-bottom:14px;">
+      В горнолыжном курорте <strong>75 лыжников</strong> хотят подняться на гору.
+      Каждый лыжник самостоятельно выбирает один из двух подъёмников —
+      тот, у которого меньше время ожидания. Посмотрим, что из этого получится!
+    </p>
+
+    <div class="lifts">
+      <div class="lift-card lift-a">
+        <div class="lift-icon">🚡</div>
+        <div class="lift-name">Подъёмник А</div>
+        <div class="lift-rule">Большой медленный подъёмник. <strong>Время ожидания всегда 10 минут</strong> — неважно, сколько людей стоит в очереди.</div>
+        <div class="wait-big wait-a-color" id="waitADisplay">10 мин</div>
+        <div class="skier-count" id="countADisplay">🎿 26 лыжников</div>
+      </div>
+
+      <div class="lift-card lift-b">
+        <div class="lift-icon">🚠</div>
+        <div class="lift-name">Подъёмник Б</div>
+        <div class="lift-rule">Маленький быстрый подъёмник. <strong>Время ожидания = количество людей ÷ 6</strong> минут. Чем больше народу — тем дольше.</div>
+        <div class="wait-big wait-b-color" id="waitBDisplay">8.2 мин</div>
+        <div class="skier-count" id="countBDisplay">🎿 49 лыжников</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Slider -->
+  <div class="slider-box">
+    <div class="slider-title">Выбери: сколько лыжников едет на подъёмнике Б?</div>
+
+    <div class="slider-row">
+      <div class="side-label side-a">
+        <span id="naLabel">26</span>
+        <small>на А</small>
+      </div>
+      <div class="slider-wrap">
+        <input type="range" id="mainSlider" min="0" max="75" value="49" oninput="update()" style="background: linear-gradient(to right, rgb(232, 184, 0) 65.3%, rgb(34, 160, 80) 65.3%);">
+        <div class="tick-row">
+          <span>0</span><span>15</span><span>30</span><span>45</span><span>60</span><span>75</span>
+        </div>
+      </div>
+      <div class="side-label side-b">
+        <span id="nbLabel">49</span>
+        <small>на Б</small>
+      </div>
+    </div>
+
+    <!-- Bar chart -->
+    <div class="bars-wrap">
+      <div class="bar-col">
+        <div class="bar-lbl" style="color:#c89000">Ожидание<br>на А</div>
+        <div class="bar-container">
+          <div class="bar-fill" id="barA" style="height:50%;background:#e8b800;"></div>
+        </div>
+        <div class="bar-val color-a" id="barLabelA">10 мин</div>
+      </div>
+
+      <div class="bar-col">
+        <div class="bar-lbl" style="color:#1a7d3e">Ожидание<br>на Б</div>
+        <div class="bar-container">
+          <div class="bar-fill" id="barB" style="height: 40.8333%; background: rgb(34, 160, 80);"></div>
+        </div>
+        <div class="bar-val color-b" id="barLabelB">8.2 мин</div>
+      </div>
+
+      <div class="bar-col">
+        <div class="bar-lbl" style="color:#6030b0">Суммарное<br>время</div>
+        <div class="bar-container">
+          <div class="bar-fill" id="barTotal" style="height: 82.5208%; background: rgb(155, 89, 182);"></div>
+        </div>
+        <div class="bar-val color-total" id="barLabelTotal">660 мин</div>
+      </div>
+    </div>
+
+    <!-- Numbers panel -->
+    <div class="totals-panel">
+      <div class="total-item">
+        <div class="lbl">Ждут на А</div>
+        <div class="val color-a" id="dispA">10</div>
+        <div class="lbl">минут</div>
+      </div>
+      <div class="total-divider"></div>
+      <div class="total-item">
+        <div class="lbl">Ждут на Б</div>
+        <div class="val color-b" id="dispB">8.2</div>
+        <div class="lbl">минут</div>
+      </div>
+      <div class="total-divider"></div>
+      <div class="total-item">
+        <div class="lbl">Суммарное время всех лыжников</div>
+        <div class="val color-total" id="dispTotal">660</div>
+        <div class="lbl">минут</div>
+      </div>
+    </div>
+    <div id="statusLine" style="text-align:center;margin-top:10px;font-size:14px;color:#555;">⬅ Подъёмник Б быстрее (8.2 &lt; 10 мин) — все побегут на Б!</div>
+  </div>
+
+  <!-- Tasks -->
+  <div class="box">
+    <h2>📝 Задания</h2>
+
+    <!-- Task 1 -->
+    <div class="task task-1">
+      <h3>🎯 Задание 1 — Найди равновесие Нэша</h3>
+      <p>
+        <strong>Равновесие</strong> — это такое распределение, при котором
+        <em>ни один лыжник не захочет переходить на другой подъёмник</em>.
+        Это возможно только тогда, когда время ожидания на обоих подъёмниках
+        <strong>одинаково</strong>.
+      </p>
+      <p>Составь уравнение. Пусть <em>x</em> — число лыжников на подъёмнике Б:</p>
+      <div class="equation">x ÷ 6 = 10</div>
+      <p>Реши уравнение и переведи ползунок на найденное значение. Проверь!</p>
+      <div class="hint">
+        💡 Подсказка: умножь обе части уравнения на 6, чтобы найти x.
+      </div>
+      <div class="success-msg" id="ok1">🎉 Отлично! Ты нашёл равновесие!
+ При x = 60 оба подъёмника дают 10 минут. Никто не захочет менять 
+подъёмник — ведь везде одинаково!</div>
+    </div>
+
+    <!-- Task 2 -->
+    <div class="task task-2">
+      <h3>🏆 Задание 2 — Найди системный оптимум</h3>
+      <p>
+        Теперь попробуй найти распределение, при котором
+        <strong>суммарное время ожидания всех лыжников будет наименьшим</strong>.
+        Никто не управляет выбором — просто передвигай ползунок и смотри на
+        «Суммарное время».
+      </p>
+      <p>Запиши формулу суммарного времени:</p>
+      <div class="equation">Σ = (75 − x) × 10 + x × (x ÷ 6)</div>
+      <p>При каком x суммарное время минимально?</p>
+      <div class="success-msg" id="ok2">🎉 Супер! При x = 30 суммарное время минимально — 600 минут! Это лучше, чем при равновесии (750 минут).</div>
+    </div>
+
+    <!-- Task 3 -->
+    <div class="task task-3">
+      <h3>💬 Задание 3 — Вопрос для размышления</h3>
+      <p>
+        При равновесии (Задание 1) суммарное время <strong>750 минут</strong>.<br>
+        При оптимуме (Задание 2) суммарное время <strong>600 минут</strong>.<br>
+        Оптимум лучше на <strong>150 минут</strong>!
+      </p>
+      <p>
+        Но если мы оказались в оптимуме (время на Б = 5 мин),
+        то время на Б <em>меньше</em>, чем на А (10 мин). Что сделает каждый
+        лыжник? Перебежит на Б! Почему люди не могут сами прийти к лучшему решению?
+      </p>
+      <div class="hint">
+        🤔 Это явление называется «Цена анархии» — потери от того, что каждый думает
+        только о себе, а не об общем благе. Такое встречается на дорогах, в магазинах,
+        в интернете!
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const N = 75;
+const WAIT_A = 10;
+const MAX_BAR_TIME = 20;
+const MAX_BAR_TOTAL = 800;
+
+function update() {
+  const nb = parseInt(document.getElementById('mainSlider').value);
+  const na = N - nb;
+  const waitB = nb === 0 ? 0 : nb / 6;
+  const total = na * WAIT_A + nb * waitB;
+
+  // Slider gradient
+  const pct = (nb / N * 100).toFixed(1) + '%';
+  document.getElementById('mainSlider').style.background =
+    `linear-gradient(to right, #e8b800 ${pct}, #22a050 ${pct})`;
+
+  // Side labels
+  document.getElementById('naLabel').textContent = na;
+  document.getElementById('nbLabel').textContent = nb;
+
+  // Lift cards
+  document.getElementById('countADisplay').textContent = '🎿 ' + na + ' лыжников';
+  document.getElementById('countBDisplay').textContent = '🎿 ' + nb + ' лыжников';
+
+  const wbStr = waitB.toFixed(1);
+  document.getElementById('waitADisplay').textContent = WAIT_A + ' мин';
+  document.getElementById('waitBDisplay').textContent = wbStr + ' мин';
+
+  // Colour equal signal
+  const closeEnough = Math.abs(waitB - WAIT_A) < 0.1;
+  document.getElementById('waitADisplay').className =
+    'wait-big ' + (closeEnough ? 'wait-equal' : 'wait-a-color');
+  document.getElementById('waitBDisplay').className =
+    'wait-big ' + (closeEnough ? 'wait-equal' : 'wait-b-color');
+
+  // Bars
+  const hA = Math.min(100, WAIT_A / MAX_BAR_TIME * 100);
+  const hB = Math.min(100, waitB / MAX_BAR_TIME * 100);
+  const hT = Math.min(100, total / MAX_BAR_TOTAL * 100);
+
+  document.getElementById('barA').style.height = hA + '%';
+  document.getElementById('barB').style.height = hB + '%';
+  document.getElementById('barTotal').style.height = hT + '%';
+
+  document.getElementById('barLabelA').textContent = WAIT_A + ' мин';
+  document.getElementById('barLabelB').textContent = wbStr + ' мин';
+  document.getElementById('barLabelTotal').textContent = Math.round(total) + ' мин';
+
+  // Totals
+  document.getElementById('dispA').textContent = WAIT_A;
+  document.getElementById('dispB').textContent = wbStr;
+  document.getElementById('dispTotal').textContent = Math.round(total);
+
+  // Status line
+  let status = '';
+  if (nb === 0) {
+    status = '← Все 75 лыжников едут на подъёмнике А. Б пустой.';
+  } else if (nb === 75) {
+    status = 'Все 75 лыжников едут на подъёмнике Б. А пустой.';
+  } else if (closeEnough) {
+    status = '🟰 Время ожидания на обоих подъёмниках одинаково!';
+  } else if (waitB < WAIT_A) {
+    status = `⬅ Подъёмник Б быстрее (${wbStr} < 10 мин) — все побегут на Б!`;
+  } else {
+    status = `➡ Подъёмник А быстрее (10 < ${wbStr} мин) — все побегут на А!`;
+  }
+  document.getElementById('statusLine').textContent = status;
+
+  // Success messages
+  document.getElementById('ok1').classList.toggle('show', nb === 60);
+  document.getElementById('ok2').classList.toggle('show', nb === 30);
+}
+
+update();
+</script>
+
+
+</body></html>

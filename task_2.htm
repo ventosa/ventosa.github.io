@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="ru"><head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<meta charset="UTF-8">
+<title>Задача о трёх дорогах</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Segoe UI', Arial, sans-serif;
+  background: linear-gradient(180deg, #e8f0fe 0%, #f5f5f5 100%);
+  min-height: 100vh;
+  padding: 20px;
+}
+.container { max-width: 920px; margin: 0 auto; }
+h1 { text-align: center; font-size: 26px; color: #1a3660; margin-bottom: 6px; padding-top: 6px; }
+.subtitle { text-align: center; color: #5577aa; font-size: 15px; margin-bottom: 20px; }
+
+.box { background: white; border-radius: 18px; padding: 20px 24px; margin-bottom: 18px; box-shadow: 0 3px 16px rgba(0,60,120,0.08); }
+.box h2 { color: #1a3660; font-size: 17px; margin-bottom: 12px; }
+
+/* Road cards */
+.roads { display: flex; gap: 12px; }
+.road-card { flex: 1; border-radius: 14px; padding: 14px; text-align: center; border: 2px solid; }
+.ra { background: #eaf3ff; border-color: #3060cc; }
+.rb { background: #fff7ea; border-color: #d97800; }
+.rc { background: #eafaf0; border-color: #22a050; }
+.road-icon { font-size: 34px; margin-bottom: 5px; }
+.road-name { font-weight: 700; font-size: 14px; margin-bottom: 5px; }
+.road-rule { font-size: 12px; color: #555; line-height: 1.5; margin-bottom: 10px; min-height: 48px; }
+.wt { font-size: 28px; font-weight: 800; margin: 3px 0; transition: color 0.2s; }
+.wa { color: #3060cc; }
+.wb { color: #c06000; }
+.wc { color: #1a7d3e; }
+.we { color: #e53e3e; animation: pulse 0.5s; }
+@keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.15)} }
+.car-count { font-size: 13px; color: #888; }
+
+/* Sliders */
+.slider-box { background: white; border-radius: 18px; padding: 22px 24px; margin-bottom: 18px; box-shadow: 0 3px 16px rgba(0,60,120,0.08); }
+.slider-title { text-align: center; font-size: 16px; font-weight: 700; color: #1a3660; margin-bottom: 18px; }
+.srow { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+.sbadge { padding: 4px 12px; border-radius: 20px; font-weight: 700; font-size: 14px; white-space: nowrap; border: 2px solid; }
+.sbb { background: #fff0d4; color: #c06000; border-color: #d97800; }
+.sbc { background: #d8f5e3; color: #1a7d3e; border-color: #22a050; }
+.swrap { flex: 1; }
+.sval { font-size: 24px; font-weight: 800; min-width: 36px; text-align: right; }
+.tick-row { display: flex; justify-content: space-between; font-size: 10px; color: #bbb; margin-top: 2px; }
+
+input[type=range] {
+  -webkit-appearance: none;
+  width: 100%;
+  height: 20px;
+  border-radius: 10px;
+  outline: none;
+  cursor: pointer;
+  display: block;
+}
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  background: white;
+  border: 4px solid #1a3660;
+  cursor: grab;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.22);
+}
+input[type=range]::-webkit-slider-thumb:active { cursor: grabbing; }
+
+.road-a-bar { background: #eaf3ff; border-radius: 12px; padding: 10px 16px; display: flex; align-items: center; gap: 14px; margin-bottom: 10px; flex-wrap: wrap; }
+.road-a-bar .lbl { font-size: 14px; color: #444; }
+.road-a-bar .aval { font-size: 24px; font-weight: 800; color: #3060cc; }
+
+.warning { display: none; background: #fff0f0; border: 2px solid #e53e3e; border-radius: 10px; padding: 9px 14px; color: #c53030; font-weight: 600; font-size: 14px; text-align: center; margin-bottom: 10px; }
+.warning.show { display: block; }
+
+/* Bars */
+.bars-wrap { display: flex; gap: 14px; justify-content: center; align-items: flex-end; height: 130px; margin: 14px 0 10px; }
+.bar-col { display: flex; flex-direction: column; align-items: center; gap: 4px; width: 80px; }
+.bar-lbl { font-size: 11px; font-weight: 600; text-align: center; line-height: 1.3; }
+.bar-cont { width: 52px; height: 100px; background: #f0f0f0; border-radius: 8px; overflow: hidden; display: flex; align-items: flex-end; }
+.bar-fill { width: 100%; border-radius: 8px 8px 0 0; transition: height 0.25s; }
+.bar-val { font-size: 12px; font-weight: 700; }
+
+.totals { background: #f0f5ff; border-radius: 12px; padding: 14px; display: flex; justify-content: space-around; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 8px; }
+.ti { text-align: center; }
+.ti .tl { font-size: 12px; color: #667; }
+.ti .tv { font-size: 22px; font-weight: 800; }
+.tdiv { width: 1px; height: 36px; background: #ccc; }
+.ca { color: #3060cc; }
+.cb { color: #c06000; }
+.cc { color: #1a7d3e; }
+.ct { color: #6030b0; }
+
+#status { text-align: center; font-size: 14px; color: #555; min-height: 20px; padding: 4px; }
+
+/* Tasks */
+.task { border-radius: 14px; padding: 16px 18px; margin-bottom: 14px; border-left: 5px solid; }
+.task h3 { font-size: 16px; margin-bottom: 10px; }
+.task p { font-size: 14px; color: #444; line-height: 1.7; margin-bottom: 8px; }
+.t1 { background: #fffcec; border-color: #d97800; }
+.t2 { background: #edfbf2; border-color: #22a050; }
+.t3 { background: #f0f5ff; border-color: #3060cc; }
+
+.eq { display: inline-block; background: white; border: 2px solid #ddd; border-radius: 10px; padding: 7px 15px; font-size: 18px; font-family: 'Courier New', monospace; font-weight: bold; color: #222; margin: 5px 4px; }
+.hint { background: #fffbe6; border-radius: 8px; padding: 9px 13px; font-size: 13px; color: #7a6000; margin-top: 8px; line-height: 1.6; }
+.ok { display: none; background: #d4edda; border: 2px solid #28a745; border-radius: 10px; padding: 10px 16px; color: #155724; font-weight: 700; font-size: 15px; text-align: center; margin-top: 10px; }
+.ok.show { display: block; animation: fi 0.4s; }
+@keyframes fi { from{opacity:0;transform:translateY(-5px)} to{opacity:1;transform:none} }
+
+@media (max-width: 620px) {
+  .roads { flex-direction: column; }
+  .srow { flex-wrap: wrap; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+<!-- SVG map -->
+<div style="text-align:center;margin-bottom:12px;">
+<svg width="100%" height="76" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 820 120">
+  <!-- City A -->
+  <rect x="8" y="32" width="96" height="64" rx="5" fill="#dde8ff" stroke="#3060cc" stroke-width="1.5"></rect>
+  <rect x="16" y="46" width="15" height="50" rx="2" fill="#3060cc"></rect>
+  <rect x="35" y="57" width="11" height="39" rx="2" fill="#5580ee"></rect>
+  <rect x="50" y="42" width="17" height="54" rx="2" fill="#3060cc"></rect>
+  <rect x="71" y="54" width="13" height="42" rx="2" fill="#5580ee"></rect>
+  <text x="56" y="27" text-anchor="middle" font-size="12" font-weight="bold" fill="#1a3660">Город А</text>
+
+  <!-- City B -->
+  <rect x="716" y="32" width="96" height="64" rx="5" fill="#dde8ff" stroke="#3060cc" stroke-width="1.5"></rect>
+  <rect x="724" y="46" width="15" height="50" rx="2" fill="#3060cc"></rect>
+  <rect x="743" y="57" width="11" height="39" rx="2" fill="#5580ee"></rect>
+  <rect x="758" y="42" width="17" height="54" rx="2" fill="#3060cc"></rect>
+  <rect x="779" y="54" width="13" height="42" rx="2" fill="#5580ee"></rect>
+  <text x="764" y="27" text-anchor="middle" font-size="12" font-weight="bold" fill="#1a3660">Город Б</text>
+
+  <!-- Road А — top arc, blue -->
+  <path d="M 108 52 Q 410 6 712 52" stroke="#3060cc" stroke-width="3.5" fill="none"></path>
+  <text x="410" y="14" text-anchor="middle" font-size="11" fill="#3060cc" font-weight="bold">▲ Шоссе А — всегда 10 мин</text>
+
+  <!-- Road Б — straight, orange -->
+  <line x1="108" y1="70" x2="712" y2="70" stroke="#d97800" stroke-width="3.5"></line>
+  <text x="410" y="64" text-anchor="middle" font-size="11" fill="#b05800" font-weight="bold">▶ Проспект Б — b ÷ 3 мин</text>
+
+  <!-- Road В — bottom arc, green -->
+  <path d="M 108 86 Q 410 112 712 86" stroke="#22a050" stroke-width="3.5" fill="none"></path>
+  <text x="410" y="116" text-anchor="middle" font-size="11" fill="#1a7d3e" font-weight="bold">▼ Объезд В — 4 + c ÷ 5 мин</text>
+
+  <!-- Cars А -->
+  <rect x="240" y="47" width="12" height="7" rx="2" fill="#3060cc" opacity="0.8"></rect>
+  <rect x="350" y="36" width="12" height="7" rx="2" fill="#3060cc" opacity="0.8"></rect>
+  <rect x="510" y="36" width="12" height="7" rx="2" fill="#3060cc" opacity="0.8"></rect>
+  <!-- Cars Б -->
+  <rect x="260" y="67" width="12" height="7" rx="2" fill="#d97800" opacity="0.85"></rect>
+  <rect x="380" y="67" width="12" height="7" rx="2" fill="#d97800" opacity="0.85"></rect>
+  <rect x="490" y="67" width="12" height="7" rx="2" fill="#d97800" opacity="0.85"></rect>
+  <rect x="590" y="67" width="12" height="7" rx="2" fill="#d97800" opacity="0.85"></rect>
+  <!-- Cars В -->
+  <rect x="290" y="86" width="12" height="7" rx="2" fill="#22a050" opacity="0.85"></rect>
+  <rect x="430" y="94" width="12" height="7" rx="2" fill="#22a050" opacity="0.85"></rect>
+  <rect x="570" y="87" width="12" height="7" rx="2" fill="#22a050" opacity="0.85"></rect>
+</svg>
+</div>
+
+<h1>🚗 Задача о трёх дорогах</h1>
+<p class="subtitle">Два ползунка управляют потоком — найди равновесие и оптимум!</p>
+
+<!-- Setup -->
+<div class="box">
+  <h2>📖 Условие</h2>
+  <p style="font-size:14px;color:#444;line-height:1.7;margin-bottom:14px;">
+    Каждый час <strong>90 автомобилей</strong> едут из Города А в Город Б.
+    Каждый водитель сам выбирает дорогу с наименьшим временем в пути.
+    Управляй ползунками за двух из трёх дорог — третья берёт всех остальных.
+  </p>
+  <div class="roads">
+    <div class="road-card ra">
+      <div class="road-icon">🛣️</div>
+      <div class="road-name" style="color:#3060cc">Шоссе А</div>
+      <div class="road-rule">Широкая трасса без светофоров.<br><strong>Всегда ровно 10 минут</strong> — сколько бы машин ни ехало.</div>
+      <div class="wt wa" id="wtA">10 мин</div>
+      <div class="car-count" id="cntA">🚗 7 машин</div>
+    </div>
+    <div class="road-card rb">
+      <div class="road-icon">🏙️</div>
+      <div class="road-name" style="color:#c06000">Проспект Б</div>
+      <div class="road-rule">Через центр города со светофорами.<br><strong>Время = b ÷ 3 мин,</strong> где b — число машин.</div>
+      <div class="wt wb" id="wtB">17.3 мин</div>
+      <div class="car-count" id="cntB">🚗 52 машин</div>
+    </div>
+    <div class="road-card rc">
+      <div class="road-icon">🌿</div>
+      <div class="road-name" style="color:#1a7d3e">Объезд В</div>
+      <div class="road-rule">Через пригород: длиннее, но без пробок.<br><strong>Время = 4 + c ÷ 5 мин,</strong> где c — число машин.</div>
+      <div class="wt wc" id="wtC">10.2 мин</div>
+      <div class="car-count" id="cntC">🚗 31 машин</div>
+    </div>
+  </div>
+</div>
+
+<!-- Sliders -->
+<div class="slider-box">
+  <div class="slider-title">Распредели машины по дорогам (Шоссе А берёт остаток):</div>
+
+  <div class="srow">
+    <span class="sbadge sbb">Проспект Б</span>
+    <div class="swrap">
+      <input type="range" id="slB" min="0" max="90" value="52" oninput="update()" style="background: linear-gradient(to right, rgb(217, 120, 0) 57.7778%, rgb(224, 224, 224) 57.7778%);">
+      <div class="tick-row"><span>0</span><span>15</span><span>30</span><span>45</span><span>60</span><span>75</span><span>90</span></div>
+    </div>
+    <span class="sval cb" id="nbLbl">52</span>
+    <span style="font-size:13px;color:#888">машин</span>
+  </div>
+
+  <div class="srow">
+    <span class="sbadge sbc">Объезд В</span>
+    <div class="swrap">
+      <input type="range" id="slC" min="0" max="90" value="31" oninput="update()" style="background: linear-gradient(to right, rgb(34, 160, 80) 34.4444%, rgb(224, 224, 224) 34.4444%);">
+      <div class="tick-row"><span>0</span><span>15</span><span>30</span><span>45</span><span>60</span><span>75</span><span>90</span></div>
+    </div>
+    <span class="sval cc" id="ncLbl">31</span>
+    <span style="font-size:13px;color:#888">машин</span>
+  </div>
+
+  <div class="road-a-bar">
+    <span class="lbl">🛣️ <b>Шоссе А (остаток):</b></span>
+    <span class="aval" id="naLbl">7</span>
+    <span style="font-size:13px;color:#888">машин</span>
+  </div>
+
+  <div class="warning" id="warn">⚠️ Б + В = <span id="warnSum">83</span> машин &gt; 90! На Шоссе А не хватает. Уменьши один из ползунков.</div>
+
+  <!-- Bars -->
+  <div class="bars-wrap">
+    <div class="bar-col">
+      <div class="bar-lbl ca">Шоссе А<br>мин</div>
+      <div class="bar-cont"><div class="bar-fill" id="bA" style="background: rgb(48, 96, 204); height: 31.25%;"></div></div>
+      <div class="bar-val ca" id="bvA">10</div>
+    </div>
+    <div class="bar-col">
+      <div class="bar-lbl cb">Проспект Б<br>мин</div>
+      <div class="bar-cont"><div class="bar-fill" id="bB" style="background: rgb(232, 120, 0); height: 54.1667%;"></div></div>
+      <div class="bar-val cb" id="bvB">17.3</div>
+    </div>
+    <div class="bar-col">
+      <div class="bar-lbl cc">Объезд В<br>мин</div>
+      <div class="bar-cont"><div class="bar-fill" id="bC" style="background: rgb(34, 160, 80); height: 31.875%;"></div></div>
+      <div class="bar-val cc" id="bvC">10.2</div>
+    </div>
+    <div class="bar-col">
+      <div class="bar-lbl ct">Суммарное<br>время</div>
+      <div class="bar-cont"><div class="bar-fill" id="bT" style="background: rgb(155, 89, 182); height: 100%;"></div></div>
+      <div class="bar-val ct" id="bvT">1288</div>
+    </div>
+  </div>
+
+  <div class="totals">
+    <div class="ti"><div class="tl">Шоссе А</div><div class="tv ca" id="dA">10</div><div class="tl">мин</div></div>
+    <div class="tdiv"></div>
+    <div class="ti"><div class="tl">Проспект Б</div><div class="tv cb" id="dB">17.3</div><div class="tl">мин</div></div>
+    <div class="tdiv"></div>
+    <div class="ti"><div class="tl">Объезд В</div><div class="tv cc" id="dC">10.2</div><div class="tl">мин</div></div>
+    <div class="tdiv"></div>
+    <div class="ti"><div class="tl">Суммарное время всех</div><div class="tv ct" id="dT">1288</div><div class="tl">минут</div></div>
+  </div>
+  <div id="status">↗ Шоссе А быстрее (10 мин) — все туда!</div>
+</div>
+
+<!-- Tasks -->
+<div class="box">
+  <h2>📝 Задания</h2>
+
+  <div class="task t1">
+    <h3>🎯 Задание 1 — Найди равновесие Нэша</h3>
+    <p>
+      <strong>Равновесие</strong> — когда время на всех трёх дорогах <em>одинаково</em>.
+      Тогда ни один водитель не захочет менять маршрут.
+    </p>
+    <p>Составь и реши два уравнения (b — машины на Б, c — машины на В):</p>
+    <div style="margin:8px 0">
+      <div class="eq">b ÷ 3 = 10</div>
+      <span style="font-size:22px;color:#ccc;margin:0 6px">и</span>
+      <div class="eq">4 + c ÷ 5 = 10</div>
+    </div>
+    <p>Найди b и c, переведи ползунки на эти значения и проверь!</p>
+    <div class="hint">
+      💡 Первое уравнение: умножь обе части на 3 → b = ?<br>
+      💡 Второе: вычти 4 из обеих частей → c ÷ 5 = ? → умножь на 5 → c = ?
+    </div>
+    <div class="ok" id="ok1">🎉 Равновесие Нэша найдено! По 30 машин на каждой дороге, всюду 10 минут. Ни один водитель не захочет перестраиваться!</div>
+  </div>
+
+  <div class="task t2">
+    <h3>🏆 Задание 2 — Найди системный оптимум</h3>
+    <p>
+      Найди распределение, при котором <strong>суммарное время всех машин наименьшее</strong>.
+      Двигай ползунки и наблюдай за «Суммарным временем».
+    </p>
+    <p>Формула суммарного времени:</p>
+    <div class="eq" style="font-size:15px">Σ = ?</div>
+    <p style="margin-top:8px">При каком b и c значение Σ минимально?</p>
+    <div class="ok" id="ok2">🏆 Оптимум найден! b = 15, c = 15, на шоссе А — 60 машин. Суммарное время 780 минут — на 120 минут лучше равновесия!</div>
+  </div>
+
+  <div class="task t3">
+    <h3>💬 Задание 3 — Цена анархии</h3>
+    <p>
+      При равновесии суммарное время — <strong>? минут</strong>.<br>
+      При оптимуме суммарное время — <strong>? минут</strong>.<br>
+      Разница: <strong>? минут</strong> — в среднем <strong>? минуты лишнего пути</strong> на каждую из 90 машин.
+    </p>
+    <p>
+      Посмотри, сколько минут занимают Б и В в оптимуме (по 15 машин):
+      Б = ? мин, В = ? мин — оба быстрее Шоссе А (10 мин)!
+      Если водители узнают об этом, что произойдёт?
+    </p>
+    <div class="hint">
+      🤔 Это называется «Ценой анархии»: каждый думает только о себе —
+      все вместе теряют ? минут в час. В реальных городах именно поэтому
+      вводят платные полосы, умные светофоры и навигацию — чтобы
+      направить поток ближе к оптимуму!
+    </div>
+  </div>
+</div>
+
+</div>
+<script>
+const N = 90;
+const TA = 10;
+const MAX_T = 32;
+const MAX_TOT = 1100;
+
+const tB = nb => nb / 3;
+const tC = nc => 4 + nc / 5;
+
+function update() {
+  const nb = +document.getElementById('slB').value;
+  const nc = +document.getElementById('slC').value;
+  const overflow = nb + nc > N;
+  const na = overflow ? 0 : N - nb - nc;
+
+  // Slider gradients
+  document.getElementById('slB').style.background =
+    `linear-gradient(to right,#d97800 ${nb/N*100}%,#e0e0e0 ${nb/N*100}%)`;
+  document.getElementById('slC').style.background =
+    `linear-gradient(to right,#22a050 ${nc/N*100}%,#e0e0e0 ${nc/N*100}%)`;
+
+  // Side labels
+  document.getElementById('nbLbl').textContent = nb;
+  document.getElementById('ncLbl').textContent = nc;
+  document.getElementById('naLbl').textContent = overflow ? '⚠ 0' : na;
+
+  // Warning
+  document.getElementById('warn').classList.toggle('show', overflow);
+  document.getElementById('warnSum').textContent = nb + nc;
+
+  // Times
+  const a = TA, b = tB(nb), c = tC(nc);
+  const tot = na * a + nb * b + nc * c;
+  const bs = b.toFixed(1), cs = c.toFixed(1);
+
+  // Road cards
+  document.getElementById('cntA').textContent = '🚗 ' + na + ' машин';
+  document.getElementById('cntB').textContent = '🚗 ' + nb + ' машин';
+  document.getElementById('cntC').textContent = '🚗 ' + nc + ' машин';
+  document.getElementById('wtA').textContent = a + ' мин';
+  document.getElementById('wtB').textContent = bs + ' мин';
+  document.getElementById('wtC').textContent = cs + ' мин';
+
+  // Highlight equal
+  const eq = !overflow && nb > 0 && nc > 0 && na > 0 &&
+              Math.abs(b - a) < 0.1 && Math.abs(c - a) < 0.1;
+  document.getElementById('wtA').className = 'wt ' + (eq ? 'we' : 'wa');
+  document.getElementById('wtB').className = 'wt ' + (eq ? 'we' : 'wb');
+  document.getElementById('wtC').className = 'wt ' + (eq ? 'we' : 'wc');
+
+  // Bars
+  document.getElementById('bA').style.height = Math.min(100, a / MAX_T * 100) + '%';
+  document.getElementById('bB').style.height = Math.min(100, b / MAX_T * 100) + '%';
+  document.getElementById('bC').style.height = Math.min(100, c / MAX_T * 100) + '%';
+  document.getElementById('bT').style.height = Math.min(100, tot / MAX_TOT * 100) + '%';
+  document.getElementById('bvA').textContent = a;
+  document.getElementById('bvB').textContent = bs;
+  document.getElementById('bvC').textContent = cs;
+  document.getElementById('bvT').textContent = Math.round(tot);
+
+  // Totals
+  document.getElementById('dA').textContent = a;
+  document.getElementById('dB').textContent = bs;
+  document.getElementById('dC').textContent = cs;
+  document.getElementById('dT').textContent = Math.round(tot);
+
+  // Status line
+  let st = '';
+  if (overflow) {
+    st = '⚠️ Сумма Б + В превышает 90! Уменьши один из ползунков.';
+  } else if (eq) {
+    st = '🟰 Равновесие! На всех трёх дорогах одинаковое время.';
+  } else if (!overflow && nb === 15 && nc === 15) {
+    st = '🏆 Системный оптимум — суммарное время минимально (780 мин)!';
+  } else {
+    const mn = Math.min(a, b, c);
+    if (b < a && b <= c)      st = `⬅ Проспект Б быстрее (${bs} мин) — все туда!`;
+    else if (c < a && c <= b) st = `↘ Объезд В быстрее (${cs} мин) — все туда!`;
+    else                       st = `↗ Шоссе А быстрее (${a} мин) — все туда!`;
+  }
+  document.getElementById('status').textContent = st;
+
+  // Success messages
+  document.getElementById('ok1').classList.toggle('show', !overflow && nb === 30 && nc === 30);
+  document.getElementById('ok2').classList.toggle('show', !overflow && nb === 15 && nc === 15);
+}
+
+update();
+</script>
+
+
+</body></html>
